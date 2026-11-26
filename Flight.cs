@@ -1,6 +1,6 @@
 namespace FlappyBird;
 
-public enum Phase { Ready, Flying, Finished }
+public enum Phase { Ready, Flying, Paused, Finished }
 
 public sealed class Gate(float x, float center)
 {
@@ -33,9 +33,19 @@ public sealed class Flight
         Gates.Add(new(1154, 180));
     }
 
+    public void Pause()
+    {
+        if (State == Phase.Flying) State = Phase.Paused;
+    }
+
+    public void Resume()
+    {
+        if (State == Phase.Paused) State = Phase.Flying;
+    }
+
     public void Flap()
     {
-        if (State == Phase.Finished) return;
+        if (State is Phase.Paused or Phase.Finished) return;
         State = Phase.Flying;
         Velocity = -258;
     }

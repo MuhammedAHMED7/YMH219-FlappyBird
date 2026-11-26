@@ -23,19 +23,38 @@ public sealed class MainForm : Form
             var dt = Math.Min(0.05, clock.Elapsed.TotalSeconds);
             clock.Restart();
             game.Advance((float)dt);
+            if (game.State == Phase.Finished) timer.Stop();
             Invalidate();
         };
-        timer.Start();
         KeyDown += (_,e) => {
-            if (e.KeyCode == Keys.R) { game.Reset(); Invalidate(); }
+            if (e.KeyCode == Keys.R) { timer.Stop(); game.Reset(); Invalidate(); }
+            if (e.KeyCode == Keys.Escape) Pause();
             if (e.KeyCode == Keys.Space && !held) { held = true; Action(); }
         };
         KeyUp += (_,e) => { if(e.KeyCode == Keys.Space) held = false; };
-        Deactivate += (_,_) => held = false;
+        Deactivate += (_,_) => { held = false; Pause(); };
         MouseDown += (_,e) => { if(e.Button == MouseButtons.Left) Action(); };
     }
 
-    void Action() { if(game.State == Phase.Finished) game.Reset(); game.Flap(); Invalidate(); }
+    void Pause()
+    {
+        game.Pause();
+        timer.Stop();
+        Invalidate();
+    }
+
+    void Action()
+    {
+        if (game.State == Phase.Finished) game.Reset();
+        if (game.State == Phase.Paused) game.Resume();
+        else game.Flap();
+        if (!timer.Enabled)
+        {
+            clock.Restart();
+            timer.Start();
+        }
+        Invalidate();
+    }
 
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -75,16 +94,22 @@ public sealed class MainForm : Form
         g.Restore(state);
         g.FillRectangle(dark,0,474,900,36);
         TextAt(g,"FIRAT FLIGHT   /   KANYON ROTASI",18,481,11,Brushes.White);
-        TextAt(g,"BOŞLUK   Uçuş     •     R   Yeni oyun",622,481,11,Brushes.White);
+        TextAt(g,"BOŞLUK   Uçuş     •     ESC   Duraklat     •     R   Yeni oyun",555,481,11,Brushes.White);
         g.FillRectangle(dark,20,17,135,41);
         TextAt(g,$"SKOR    {game.Score:00}",33,25,16,sun);
         if(game.State != Phase.Flying)
         {
             g.FillRectangle(dark,276,157,348,150);
-            TextAt(g,game.State == Phase.Ready ? "Kanyon uçuşu" : "Oyun bitti",298,176,32,Brushes.White);
+            var title = game.State switch
+            {
+                Phase.Ready => "Kanyon uçuşu",
+                Phase.Paused => "Uçuş duraklatıldı",
+                _ => "Oyun bitti"
+            };
+            TextAt(g,title,298,176,32,Brushes.White);
             string line=game.State == Phase.Ready ? "Geçitlerin arasından süzül." : $"Geçilen engel   {game.Score}";
             TextAt(g,line,300,232,14,sun);
-            TextAt(g,"Boşluk veya tıklama ile uç",300,266,13,Brushes.White);
+            TextAt(g,game.State == Phase.Paused ? "Boşluk veya tıklama ile devam et" : "Boşluk veya tıklama ile uç",300,266,13,Brushes.White);
         }
     }
 
