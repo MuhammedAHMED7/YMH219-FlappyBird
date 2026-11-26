@@ -28,6 +28,8 @@ Visual Studio'da .NET 10 destekli bir sürüm ve **.NET masaüstü geliştirme**
 2. Üst ve alt kulelerin arasından geçin. Her geçit bir puandır. Ekrandan çıkan geçit farklı yükseklikte geri gelir.
 3. Tavana, zemine veya kuleye çarpınca uçuş biter. **R** başlangıç ekranına döner. Oyun sonu ekranında boşluk veya tık doğrudan yeni uçuşu başlatır.
 
+Esc uçuşu duraklatır. Başka pencereye geçtiğinizde oyun otomatik duraklar. Boşluk veya tıklama konum ve hızı koruyarak uçuşu sürdürür. Durgun ekranlarda oyun zamanlayıcısı kapanır.
+
 ## Sınıflar ve sorumluluklar
 
 `Flight` yer çekimini, hızı, skoru ve oyun durumunu yönetir. `Gate` açıklığın konumunu ve o geçidin puanlanıp puanlanmadığını tutar. `MainForm` klavye ve fare olaylarını modele iletir. Timer geçen süreyle modeli ilerletir. Çizim, sabit oyun alanını pencereye orantılı ölçekler.
